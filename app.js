@@ -1,5 +1,4 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbwk2Yj8iK8pyfXPrGUNhgrCrp0IOVNLbM61PfE_He1tJIulYW-a-EsQEYpLVSxIa_Q5/exec";
-const REQUEST_HEADERS = { "Content-Type": "application/json" };
+const STORAGE_KEY = "expense_entries";
 
 const entryForm = document.getElementById("entryForm");
 const entriesTbody = document.getElementById("entries");
@@ -71,30 +70,17 @@ function fillYearOptions(selected) {
 }
 
 function loadEntries() {
-  return cachedEntries;
+  const raw = localStorage.getItem(STORAGE_KEY);
+  return raw ? JSON.parse(raw) : cachedEntries;
 }
 
 function saveEntries(entries) {
   cachedEntries = entries;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
 }
 
 function formatAmount(value) {
   return Number(value).toFixed(2);
-}
-
-async function sendEntry(action, payload) {
-  if (!API_URL || API_URL.includes("PASTE_YOUR")) {
-    throw new Error("API_URL is not set.");
-  }
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: REQUEST_HEADERS,
-    body: JSON.stringify({ action, ...payload }),
-  });
-  if (!response.ok) {
-    throw new Error("Request failed.");
-  }
-  return response.json();
 }
 
 function render() {
@@ -126,7 +112,6 @@ function render() {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${entry.date}</td>
-        <td>${entry.userName || ""}</td>
         <td>${entry.type}</td>
         <td>${entry.category}</td>
         <td>${formatAmount(entry.amount)}</td>
@@ -145,34 +130,30 @@ function render() {
 }
 
 function addEntry(data) {
-  return sendEntry("add", { data }).then(() => {
-    const entries = loadEntries();
-    entries.push(data);
-    saveEntries(entries);
-    render();
-  });
+  const entries = loadEntries();
+  entries.push(data);
+  saveEntries(entries);
+  render();
 }
 
 function deleteEntry(index) {
-  alert("Delete is not enabled for the shared report.");
+  const entries = loadEntries();
+  entries.splice(index, 1);
+  saveEntries(entries);
+  render();
 }
 
 function clearAll() {
   if (!confirm("Clear all entries?")) return;
-  sendEntry("clear", {})
-    .then(() => {
-      saveEntries([]);
-      render();
-    })
-    .catch((err) => alert(err.message));
+  saveEntries([]);
+  render();
 }
 
 function downloadCsv() {
   const entries = loadEntries();
-  const header = ["date", "name", "type", "category", "amount", "note"];
+  const header = ["date", "type", "category", "amount", "note"];
   const rows = entries.map((e) => [
     e.date,
-    e.userName || "",
     e.type,
     e.category,
     formatAmount(e.amount),
@@ -205,7 +186,7 @@ function parseCsv(content) {
   if (!lines.length) return [];
 
   const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const expected = ["date", "name", "type", "category", "amount", "note"];
+  const expected = ["date", "type", "category", "amount", "note"];
   const hasHeader = expected.every((key, i) => header[i] === key);
 
   const startIndex = hasHeader ? 1 : 0;
@@ -215,11 +196,10 @@ function parseCsv(content) {
     const values = line.split(",");
     return {
       date: values[0] || today,
-      userName: values[1] || "",
-      type: values[2] === "income" ? "income" : "expense",
-      category: values[3] || "General",
-      amount: Number(values[4]) || 0,
-      note: values[5] || "",
+      type: values[1] === "income" ? "income" : "expense",
+      category: values[2] || "General",
+      amount: Number(values[3]) || 0,
+      note: values[4] || "",
     };
   });
 }
@@ -231,23 +211,17 @@ if (entryForm) {
     const data = {
       type: document.getElementById("type").value,
       date: document.getElementById("date").value || today,
-      userName: document.getElementById("userName").value.trim(),
       category: document.getElementById("category").value.trim() || "General",
       amount: Number(document.getElementById("amount").value),
       note: document.getElementById("note").value.trim(),
     };
-
-    if (!data.userName) {
-      alert("Please enter your name.");
-      return;
-    }
 
     if (!data.amount || data.amount <= 0) {
       alert("Please enter a positive amount.");
       return;
     }
 
-    addEntry(data).catch((err) => alert(err.message));
+    addEntry(data);
     entryForm.reset();
     document.getElementById("date").value = today;
   });
@@ -286,14 +260,9 @@ if (importCsvInput) {
     const reader = new FileReader();
     reader.onload = () => {
       const imported = parseCsv(reader.result);
-      const uploads = imported.map((entry) => sendEntry("add", { data: entry }));
-      Promise.all(uploads)
-        .then(() => {
-          const entries = loadEntries().concat(imported);
-          saveEntries(entries);
-          render();
-        })
-        .catch((err) => alert(err.message));
+      const entries = loadEntries().concat(imported);
+      saveEntries(entries);
+      render();
     };
     reader.readAsText(file);
     importCsvInput.value = "";
