@@ -1,14 +1,14 @@
 @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Work+Sans:wght@400;500;600&display=swap");
 
 :root {
-  --bg-1: #0c1116;
-  --bg-2: #141b22;
-  --accent: #ffb347;
-  --accent-2: #5eead4;
-  --text: #e8eef5;
-  --muted: #9fb0c2;
-  --card: #151c23;
-  --stroke: rgba(255, 255, 255, 0.08);
+  --bg-1: #cfeeff;
+  --bg-2: #8fd3ff;
+  --accent: #1d4ed8;
+  --accent-2: #0ea5a4;
+  --text: #0f172a;
+  --muted: #42526b;
+  --card: #f5fbff;
+  --stroke: rgba(15, 23, 42, 0.12);
 }
 
 * {
@@ -27,8 +27,8 @@ body {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(800px 400px at 15% 10%, rgba(255, 179, 71, 0.2), transparent 60%),
-    radial-gradient(600px 500px at 85% 20%, rgba(94, 234, 212, 0.18), transparent 60%),
+    radial-gradient(900px 500px at 12% 8%, rgba(29, 78, 216, 0.15), transparent 60%),
+    radial-gradient(700px 600px at 88% 18%, rgba(14, 165, 164, 0.18), transparent 60%),
     linear-gradient(180deg, var(--bg-1), var(--bg-2));
   z-index: -1;
 }
@@ -210,8 +210,8 @@ select:focus {
 }
 
 .btn.primary {
-  background: linear-gradient(135deg, var(--accent), #ff7847);
-  color: #1c1200;
+  background: linear-gradient(135deg, var(--accent), #3b82f6);
+  color: #f8fafc;
   border: none;
 }
 
