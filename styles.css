@@ -68,6 +68,11 @@ body {
   align-items: center;
 }
 
+.hero-top {
+  grid-template-columns: 1fr auto;
+  align-items: start;
+}
+
 .hero-text h1 {
   font-family: "Space Grotesk", sans-serif;
   font-size: clamp(2rem, 4vw, 3.25rem);
@@ -248,6 +253,7 @@ select:focus {
 
 .filters-hero {
   margin-top: 18px;
+  justify-content: flex-end;
 }
 
 .table-wrap {
