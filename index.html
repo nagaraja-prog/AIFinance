@@ -72,7 +72,23 @@
 
       <section class="panel">
         <div class="panel-head">
-          <h2>Entries</h2>
+          <div class="panel-left">
+            <h2><strong>Entries</strong></h2>
+            <div class="filters">
+              <label>
+                Month
+                <select id="filterMonth">
+                  <option value="">All</option>
+                </select>
+              </label>
+              <label>
+                Year
+                <select id="filterYear">
+                  <option value="">All</option>
+                </select>
+              </label>
+            </div>
+          </div>
           <div class="tools">
             <button class="btn" id="downloadCsv">Download CSV</button>
             <label class="btn file">

@@ -50,6 +50,7 @@ body {
 .hero-text h1 {
   font-family: "Space Grotesk", sans-serif;
   font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 700;
   margin: 8px 0;
 }
 
@@ -192,6 +193,21 @@ select:focus {
   gap: 12px;
   flex-wrap: wrap;
   margin-bottom: 12px;
+}
+
+.panel-left {
+  display: grid;
+  gap: 10px;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.filters label {
+  min-width: 140px;
 }
 
 .table-wrap {

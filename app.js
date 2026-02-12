@@ -8,10 +8,54 @@ const balanceTotalEl = document.getElementById("balanceTotal");
 const clearAllBtn = document.getElementById("clearAll");
 const downloadCsvBtn = document.getElementById("downloadCsv");
 const importCsvInput = document.getElementById("importCsv");
+const filterMonth = document.getElementById("filterMonth");
+const filterYear = document.getElementById("filterYear");
 
 const dateInput = document.getElementById("date");
 const today = new Date().toISOString().slice(0, 10);
 dateInput.value = today;
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+function fillMonthOptions() {
+  monthNames.forEach((name, index) => {
+    const option = document.createElement("option");
+    option.value = String(index + 1).padStart(2, "0");
+    option.textContent = name;
+    filterMonth.appendChild(option);
+  });
+}
+
+function fillYearOptions(entries, selected) {
+  const years = new Set(entries.map((e) => e.date.slice(0, 4)));
+  years.add(String(new Date().getFullYear()));
+  const sorted = Array.from(years).filter(Boolean).sort().reverse();
+
+  filterYear.innerHTML = `<option value="">All</option>`;
+  sorted.forEach((year) => {
+    const option = document.createElement("option");
+    option.value = year;
+    option.textContent = year;
+    filterYear.appendChild(option);
+  });
+
+  if (selected) {
+    filterYear.value = selected;
+  }
+}
 
 function loadEntries() {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -28,12 +72,21 @@ function formatAmount(value) {
 
 function render() {
   const entries = loadEntries();
+  const selectedMonth = filterMonth.value;
+  const selectedYear = filterYear.value;
+  const filtered = entries.filter((entry) => {
+    const entryYear = entry.date.slice(0, 4);
+    const entryMonth = entry.date.slice(5, 7);
+    if (selectedYear && entryYear !== selectedYear) return false;
+    if (selectedMonth && entryMonth !== selectedMonth) return false;
+    return true;
+  });
 
   entriesTbody.innerHTML = "";
   let income = 0;
   let expense = 0;
 
-  entries.forEach((entry, index) => {
+  filtered.forEach((entry, index) => {
     if (entry.type === "income") {
       income += entry.amount;
     } else {
@@ -47,7 +100,7 @@ function render() {
       <td>${entry.category}</td>
       <td>${formatAmount(entry.amount)}</td>
       <td>${entry.note || ""}</td>
-      <td><button class="delete" data-index="${index}">Delete</button></td>
+      <td><button class="delete" data-index="${entries.indexOf(entry)}">Delete</button></td>
     `;
 
     entriesTbody.appendChild(row);
@@ -57,6 +110,7 @@ function render() {
   incomeTotalEl.textContent = formatAmount(income);
   expenseTotalEl.textContent = formatAmount(expense);
   balanceTotalEl.textContent = formatAmount(balance);
+  fillYearOptions(entries, selectedYear);
 }
 
 function addEntry(data) {
@@ -163,6 +217,8 @@ entriesTbody.addEventListener("click", (event) => {
 
 clearAllBtn.addEventListener("click", clearAll);
 downloadCsvBtn.addEventListener("click", downloadCsv);
+filterMonth.addEventListener("change", render);
+filterYear.addEventListener("change", render);
 
 importCsvInput.addEventListener("change", (event) => {
   const file = event.target.files[0];
@@ -179,4 +235,5 @@ importCsvInput.addEventListener("change", (event) => {
   importCsvInput.value = "";
 });
 
+fillMonthOptions();
 render();
