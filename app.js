@@ -82,18 +82,6 @@ function formatAmount(value) {
   return Number(value).toFixed(2);
 }
 
-async function fetchEntries() {
-  if (!API_URL || API_URL.includes("PASTE_YOUR")) {
-    throw new Error("API_URL is not set.");
-  }
-  const response = await fetch(`${API_URL}?action=list`);
-  if (!response.ok) {
-    throw new Error("Failed to load entries.");
-  }
-  const data = await response.json();
-  return Array.isArray(data.entries) ? data.entries : [];
-}
-
 async function sendEntry(action, payload) {
   if (!API_URL || API_URL.includes("PASTE_YOUR")) {
     throw new Error("API_URL is not set.");
@@ -142,7 +130,7 @@ function render() {
         <td>${entry.category}</td>
         <td>${formatAmount(entry.amount)}</td>
         <td>${entry.note || ""}</td>
-        <td><button class="btn-inline edit" data-id="${entry.id}">Edit</button></td>
+        <td></td>
       `;
       entriesTbody.appendChild(row);
     }
@@ -156,7 +144,12 @@ function render() {
 }
 
 function addEntry(data) {
-  return sendEntry("add", { data });
+  return sendEntry("add", { data }).then(() => {
+    const entries = loadEntries();
+    entries.push(data);
+    saveEntries(entries);
+    render();
+  });
 }
 
 function deleteEntry(index) {
@@ -166,12 +159,11 @@ function deleteEntry(index) {
 function clearAll() {
   if (!confirm("Clear all entries?")) return;
   sendEntry("clear", {})
-    .then(refreshEntries)
+    .then(() => {
+      saveEntries([]);
+      render();
+    })
     .catch((err) => alert(err.message));
-}
-
-function editEntry(id, data) {
-  return sendEntry("edit", { id, data });
 }
 
 function downloadCsv() {
@@ -246,9 +238,7 @@ if (entryForm) {
       return;
     }
 
-    addEntry(data)
-      .then(refreshEntries)
-      .catch((err) => alert(err.message));
+    addEntry(data).catch((err) => alert(err.message));
     entryForm.reset();
     document.getElementById("date").value = today;
   });
@@ -256,29 +246,6 @@ if (entryForm) {
 
 if (entriesTbody) {
   entriesTbody.addEventListener("click", (event) => {
-    if (event.target.classList.contains("edit")) {
-      const id = Number(event.target.dataset.id);
-      const entry = cachedEntries.find((e) => Number(e.id) === id);
-      if (!entry) return;
-
-      const date = prompt("Date (YYYY-MM-DD)", entry.date) || entry.date;
-      const type = prompt("Type (income/expense)", entry.type) || entry.type;
-      const category = prompt("Category", entry.category) || entry.category;
-      const amountRaw = prompt("Amount", entry.amount);
-      const note = prompt("Note", entry.note || "") ?? entry.note;
-
-      const amount = Number(amountRaw);
-      if (!amount || amount <= 0) {
-        alert("Please enter a positive amount.");
-        return;
-      }
-
-      editEntry(id, { date, type, category, amount, note })
-        .then(refreshEntries)
-        .catch((err) => alert(err.message));
-      return;
-    }
-
     if (event.target.classList.contains("delete")) {
       const index = Number(event.target.dataset.index);
       deleteEntry(index);
@@ -310,9 +277,13 @@ if (importCsvInput) {
     const reader = new FileReader();
     reader.onload = () => {
       const imported = parseCsv(reader.result);
-      const uploads = imported.map((entry) => addEntry(entry));
+      const uploads = imported.map((entry) => sendEntry("add", { data: entry }));
       Promise.all(uploads)
-        .then(refreshEntries)
+        .then(() => {
+          const entries = loadEntries().concat(imported);
+          saveEntries(entries);
+          render();
+        })
         .catch((err) => alert(err.message));
     };
     reader.readAsText(file);
@@ -328,17 +299,4 @@ if (filterMonth || filterYear) {
   fillYearOptions(String(now.getFullYear()));
 }
 
-function refreshEntries() {
-  return fetchEntries()
-    .then((entries) => {
-      saveEntries(entries);
-      render();
-    })
-    .catch((err) => {
-      if (entriesTbody) {
-        entriesTbody.innerHTML = `<tr><td colspan="6">${err.message}</td></tr>`;
-      }
-    });
-}
-
-refreshEntries();
+render();
