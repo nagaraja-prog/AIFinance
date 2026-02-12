@@ -195,11 +195,6 @@ select:focus {
   margin-bottom: 12px;
 }
 
-.panel-left {
-  display: grid;
-  gap: 10px;
-}
-
 .filters {
   display: flex;
   gap: 12px;
@@ -208,6 +203,10 @@ select:focus {
 
 .filters label {
   min-width: 140px;
+}
+
+.filters-hero {
+  margin-top: 18px;
 }
 
 .table-wrap {

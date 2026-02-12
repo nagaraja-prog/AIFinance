@@ -12,7 +12,8 @@ const filterMonth = document.getElementById("filterMonth");
 const filterYear = document.getElementById("filterYear");
 
 const dateInput = document.getElementById("date");
-const today = new Date().toISOString().slice(0, 10);
+const now = new Date();
+const today = now.toISOString().slice(0, 10);
 dateInput.value = today;
 
 const monthNames = [
@@ -30,6 +31,8 @@ const monthNames = [
   "December",
 ];
 
+const YEAR_RANGE = 5;
+
 function fillMonthOptions() {
   monthNames.forEach((name, index) => {
     const option = document.createElement("option");
@@ -39,13 +42,16 @@ function fillMonthOptions() {
   });
 }
 
-function fillYearOptions(entries, selected) {
-  const years = new Set(entries.map((e) => e.date.slice(0, 4)));
-  years.add(String(new Date().getFullYear()));
-  const sorted = Array.from(years).filter(Boolean).sort().reverse();
+function fillYearOptions(selected) {
+  const currentYear = now.getFullYear();
+  const startYear = currentYear - YEAR_RANGE;
+  const years = [];
+  for (let year = currentYear; year >= startYear; year -= 1) {
+    years.push(String(year));
+  }
 
   filterYear.innerHTML = `<option value="">All</option>`;
-  sorted.forEach((year) => {
+  years.forEach((year) => {
     const option = document.createElement("option");
     option.value = year;
     option.textContent = year;
@@ -110,7 +116,7 @@ function render() {
   incomeTotalEl.textContent = formatAmount(income);
   expenseTotalEl.textContent = formatAmount(expense);
   balanceTotalEl.textContent = formatAmount(balance);
-  fillYearOptions(entries, selectedYear);
+  fillYearOptions(selectedYear);
 }
 
 function addEntry(data) {
@@ -236,4 +242,6 @@ importCsvInput.addEventListener("change", (event) => {
 });
 
 fillMonthOptions();
+filterMonth.value = String(now.getMonth() + 1).padStart(2, "0");
+fillYearOptions(String(now.getFullYear()));
 render();

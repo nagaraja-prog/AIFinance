@@ -16,6 +16,20 @@
           <p class="subhead">
             Track income and expenses, see totals instantly, and export CSV anytime.
           </p>
+          <div class="filters filters-hero">
+            <label>
+              Month
+              <select id="filterMonth">
+                <option value="">All</option>
+              </select>
+            </label>
+            <label>
+              Year
+              <select id="filterYear">
+                <option value="">All</option>
+              </select>
+            </label>
+          </div>
         </div>
         <div class="hero-card">
           <div class="stat">
@@ -72,23 +86,7 @@
 
       <section class="panel">
         <div class="panel-head">
-          <div class="panel-left">
-            <h2><strong>Entries</strong></h2>
-            <div class="filters">
-              <label>
-                Month
-                <select id="filterMonth">
-                  <option value="">All</option>
-                </select>
-              </label>
-              <label>
-                Year
-                <select id="filterYear">
-                  <option value="">All</option>
-                </select>
-              </label>
-            </div>
-          </div>
+          <h2><strong>Entries</strong></h2>
           <div class="tools">
             <button class="btn" id="downloadCsv">Download CSV</button>
             <label class="btn file">
