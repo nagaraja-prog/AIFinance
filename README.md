@@ -1,21 +1,21 @@
-# Personal Expense Tracker (CSV)
+# Personal Expense Tracker (Web)
 
-Beginner-friendly CLI expense tracker that stores income/expenses in a CSV file, prints totals, and shows balance.
+This is a beginner-friendly web version that runs on Vercel as a static site.
 
-## Run
+## Run locally
 
-```powershell
-python expense_tracker.py
-```
+Open `index.html` in your browser.
 
-## What it does
+## Deploy to Vercel
 
-- Add income and expenses
-- Store entries in `data/transactions.csv`
-- Show totals and current balance
+- Push this repo to GitHub
+- Import the repo in Vercel
+- Framework preset: Other
+- Build command: (leave empty)
+- Output directory: (leave empty)
 
-## Notes
+## Data storage
 
-- CSV columns: `date,type,category,amount,note`
-- Amounts are stored as positive numbers; totals use `type` to separate income vs expense.
+Entries are stored in your browser using `localStorage`.
+Use **Download CSV** to export your data.
 

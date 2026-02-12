@@ -1,0 +1,242 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Work+Sans:wght@400;500;600&display=swap");
+
+:root {
+  --bg-1: #0c1116;
+  --bg-2: #141b22;
+  --accent: #ffb347;
+  --accent-2: #5eead4;
+  --text: #e8eef5;
+  --muted: #9fb0c2;
+  --card: #151c23;
+  --stroke: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Work Sans", system-ui, sans-serif;
+  color: var(--text);
+  background: var(--bg-1);
+  min-height: 100vh;
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(800px 400px at 15% 10%, rgba(255, 179, 71, 0.2), transparent 60%),
+    radial-gradient(600px 500px at 85% 20%, rgba(94, 234, 212, 0.18), transparent 60%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  z-index: -1;
+}
+
+.container {
+  width: min(1100px, 92vw);
+  margin: 48px auto 64px;
+  display: grid;
+  gap: 24px;
+}
+
+.hero {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  align-items: center;
+}
+
+.hero-text h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  margin: 8px 0;
+}
+
+.eyebrow {
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.subhead {
+  color: var(--muted);
+  font-size: 1.05rem;
+  max-width: 40ch;
+}
+
+.hero-card {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 20px;
+  padding: 20px;
+  display: grid;
+  gap: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.stat.balance {
+  border: 1px dashed rgba(255, 179, 71, 0.5);
+}
+
+.stat .label {
+  color: var(--muted);
+}
+
+.stat .value {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 22px;
+  padding: 22px;
+}
+
+.panel h2 {
+  margin: 0 0 16px;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.row {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+input,
+select {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--stroke);
+  background: #0f151b;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid rgba(94, 234, 212, 0.6);
+  border-color: transparent;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: 1px solid var(--stroke);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, var(--accent), #ff7847);
+  color: #1c1200;
+  border: none;
+}
+
+.btn.ghost {
+  background: transparent;
+  border: 1px dashed rgba(255, 179, 71, 0.5);
+}
+
+.btn.file {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn.file input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid var(--stroke);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+
+th,
+td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--stroke);
+  font-size: 0.95rem;
+}
+
+th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+.delete {
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .container {
+    margin: 32px auto 48px;
+  }
+
+  .hero-card {
+    order: -1;
+  }
+}
