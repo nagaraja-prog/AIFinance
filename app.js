@@ -1,4 +1,4 @@
-const API_URL = "https://script.google.com/a/macros/teachmint.com/s/AKfycbzS7evlKmav7GedG3oF3mCi1r1EeDsvKCV_u3Wt6QDwHnfkUOP_6gtpPMNRdNpVnO2N/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbwk2Yj8iK8pyfXPrGUNhgrCrp0IOVNLbM61PfE_He1tJIulYW-a-EsQEYpLVSxIa_Q5/exec";
 const REQUEST_HEADERS = { "Content-Type": "application/json" };
 
 const entryForm = document.getElementById("entryForm");
