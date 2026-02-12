@@ -126,6 +126,7 @@ function render() {
       const row = document.createElement("tr");
       row.innerHTML = `
         <td>${entry.date}</td>
+        <td>${entry.userName || ""}</td>
         <td>${entry.type}</td>
         <td>${entry.category}</td>
         <td>${formatAmount(entry.amount)}</td>
@@ -168,9 +169,10 @@ function clearAll() {
 
 function downloadCsv() {
   const entries = loadEntries();
-  const header = ["date", "type", "category", "amount", "note"];
+  const header = ["date", "name", "type", "category", "amount", "note"];
   const rows = entries.map((e) => [
     e.date,
+    e.userName || "",
     e.type,
     e.category,
     formatAmount(e.amount),
@@ -203,7 +205,7 @@ function parseCsv(content) {
   if (!lines.length) return [];
 
   const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
-  const expected = ["date", "type", "category", "amount", "note"];
+  const expected = ["date", "name", "type", "category", "amount", "note"];
   const hasHeader = expected.every((key, i) => header[i] === key);
 
   const startIndex = hasHeader ? 1 : 0;
@@ -213,10 +215,11 @@ function parseCsv(content) {
     const values = line.split(",");
     return {
       date: values[0] || today,
-      type: values[1] === "income" ? "income" : "expense",
-      category: values[2] || "General",
-      amount: Number(values[3]) || 0,
-      note: values[4] || "",
+      userName: values[1] || "",
+      type: values[2] === "income" ? "income" : "expense",
+      category: values[3] || "General",
+      amount: Number(values[4]) || 0,
+      note: values[5] || "",
     };
   });
 }
@@ -228,10 +231,16 @@ if (entryForm) {
     const data = {
       type: document.getElementById("type").value,
       date: document.getElementById("date").value || today,
+      userName: document.getElementById("userName").value.trim(),
       category: document.getElementById("category").value.trim() || "General",
       amount: Number(document.getElementById("amount").value),
       note: document.getElementById("note").value.trim(),
     };
+
+    if (!data.userName) {
+      alert("Please enter your name.");
+      return;
+    }
 
     if (!data.amount || data.amount <= 0) {
       alert("Please enter a positive amount.");
