@@ -1,4 +1,5 @@
-# Personal Expense Tracker (Web)
+# Teachmit MIS
+MIS Automation and Finance Analytics Project
 
 This is a beginner-friendly web version that runs on Vercel as a static site.
 

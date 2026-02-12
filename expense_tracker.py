@@ -101,7 +101,7 @@ def main():
     ensure_storage()
 
     while True:
-        print("Personal Expense Tracker")
+        print("Teachmit MIS")
         print("1. Add Income")
         print("2. Add Expense")
         print("3. Show Totals")
