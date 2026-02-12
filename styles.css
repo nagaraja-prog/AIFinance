@@ -77,6 +77,12 @@ body {
   letter-spacing: 0.02em;
 }
 
+.report-subtitle {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: var(--muted);
+}
+
 .hero-card {
   background: var(--card);
   border: 1px solid var(--stroke);
