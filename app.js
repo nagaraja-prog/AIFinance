@@ -1,4 +1,5 @@
-const STORAGE_KEY = "expense_entries";
+const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const REQUEST_HEADERS = { "Content-Type": "application/json" };
 
 const entryForm = document.getElementById("entryForm");
 const entriesTbody = document.getElementById("entries");
@@ -12,6 +13,7 @@ const filterMonth = document.getElementById("filterMonth");
 const filterYear = document.getElementById("filterYear");
 
 const dateInput = document.getElementById("date");
+let cachedEntries = [];
 const now = new Date();
 const today = now.toISOString().slice(0, 10);
 if (dateInput) {
@@ -69,16 +71,42 @@ function fillYearOptions(selected) {
 }
 
 function loadEntries() {
-  const raw = localStorage.getItem(STORAGE_KEY);
-  return raw ? JSON.parse(raw) : [];
+  return cachedEntries;
 }
 
 function saveEntries(entries) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  cachedEntries = entries;
 }
 
 function formatAmount(value) {
   return Number(value).toFixed(2);
+}
+
+async function fetchEntries() {
+  if (!API_URL || API_URL.includes("PASTE_YOUR")) {
+    throw new Error("API_URL is not set.");
+  }
+  const response = await fetch(`${API_URL}?action=list`);
+  if (!response.ok) {
+    throw new Error("Failed to load entries.");
+  }
+  const data = await response.json();
+  return Array.isArray(data.entries) ? data.entries : [];
+}
+
+async function sendEntry(action, payload) {
+  if (!API_URL || API_URL.includes("PASTE_YOUR")) {
+    throw new Error("API_URL is not set.");
+  }
+  const response = await fetch(API_URL, {
+    method: "POST",
+    headers: REQUEST_HEADERS,
+    body: JSON.stringify({ action, ...payload }),
+  });
+  if (!response.ok) {
+    throw new Error("Request failed.");
+  }
+  return response.json();
 }
 
 function render() {
@@ -114,7 +142,7 @@ function render() {
         <td>${entry.category}</td>
         <td>${formatAmount(entry.amount)}</td>
         <td>${entry.note || ""}</td>
-        <td><button class="delete" data-index="${entries.indexOf(entry)}">Delete</button></td>
+        <td><button class="btn-inline edit" data-id="${entry.id}">Edit</button></td>
       `;
       entriesTbody.appendChild(row);
     }
@@ -128,23 +156,22 @@ function render() {
 }
 
 function addEntry(data) {
-  const entries = loadEntries();
-  entries.push(data);
-  saveEntries(entries);
-  render();
+  return sendEntry("add", { data });
 }
 
 function deleteEntry(index) {
-  const entries = loadEntries();
-  entries.splice(index, 1);
-  saveEntries(entries);
-  render();
+  alert("Delete is not enabled for the shared report.");
 }
 
 function clearAll() {
   if (!confirm("Clear all entries?")) return;
-  saveEntries([]);
-  render();
+  sendEntry("clear", {})
+    .then(refreshEntries)
+    .catch((err) => alert(err.message));
+}
+
+function editEntry(id, data) {
+  return sendEntry("edit", { id, data });
 }
 
 function downloadCsv() {
@@ -219,7 +246,9 @@ if (entryForm) {
       return;
     }
 
-    addEntry(data);
+    addEntry(data)
+      .then(refreshEntries)
+      .catch((err) => alert(err.message));
     entryForm.reset();
     document.getElementById("date").value = today;
   });
@@ -227,9 +256,33 @@ if (entryForm) {
 
 if (entriesTbody) {
   entriesTbody.addEventListener("click", (event) => {
-    if (!event.target.classList.contains("delete")) return;
-    const index = Number(event.target.dataset.index);
-    deleteEntry(index);
+    if (event.target.classList.contains("edit")) {
+      const id = Number(event.target.dataset.id);
+      const entry = cachedEntries.find((e) => Number(e.id) === id);
+      if (!entry) return;
+
+      const date = prompt("Date (YYYY-MM-DD)", entry.date) || entry.date;
+      const type = prompt("Type (income/expense)", entry.type) || entry.type;
+      const category = prompt("Category", entry.category) || entry.category;
+      const amountRaw = prompt("Amount", entry.amount);
+      const note = prompt("Note", entry.note || "") ?? entry.note;
+
+      const amount = Number(amountRaw);
+      if (!amount || amount <= 0) {
+        alert("Please enter a positive amount.");
+        return;
+      }
+
+      editEntry(id, { date, type, category, amount, note })
+        .then(refreshEntries)
+        .catch((err) => alert(err.message));
+      return;
+    }
+
+    if (event.target.classList.contains("delete")) {
+      const index = Number(event.target.dataset.index);
+      deleteEntry(index);
+    }
   });
 }
 
@@ -257,9 +310,10 @@ if (importCsvInput) {
     const reader = new FileReader();
     reader.onload = () => {
       const imported = parseCsv(reader.result);
-      const entries = loadEntries().concat(imported);
-      saveEntries(entries);
-      render();
+      const uploads = imported.map((entry) => addEntry(entry));
+      Promise.all(uploads)
+        .then(refreshEntries)
+        .catch((err) => alert(err.message));
     };
     reader.readAsText(file);
     importCsvInput.value = "";
@@ -274,4 +328,17 @@ if (filterMonth || filterYear) {
   fillYearOptions(String(now.getFullYear()));
 }
 
-render();
+function refreshEntries() {
+  return fetchEntries()
+    .then((entries) => {
+      saveEntries(entries);
+      render();
+    })
+    .catch((err) => {
+      if (entriesTbody) {
+        entriesTbody.innerHTML = `<tr><td colspan="6">${err.message}</td></tr>`;
+      }
+    });
+}
+
+refreshEntries();

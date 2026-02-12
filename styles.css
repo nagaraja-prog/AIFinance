@@ -299,6 +299,17 @@ tr:last-child td {
   font-weight: 600;
 }
 
+.btn-inline {
+  background: var(--accent-soft);
+  border: 1px solid rgba(29, 78, 216, 0.25);
+  color: #12315a;
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
 @media (max-width: 640px) {
   .container {
     margin: 32px auto 48px;
