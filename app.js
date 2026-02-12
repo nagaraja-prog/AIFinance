@@ -1,4 +1,4 @@
-const API_URL = "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE";
+const API_URL = "https://docs.google.com/spreadsheets/d/1fvdXxzCGrB01pYkA7rJGVCzrdLLeiNTokeIMdbDHP2s/edit?gid=0#gid=0WEB_APP_URL_HERE";
 const REQUEST_HEADERS = { "Content-Type": "application/json" };
 
 const entryForm = document.getElementById("entryForm");
