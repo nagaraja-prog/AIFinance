@@ -9,6 +9,10 @@
   <body>
     <div class="bg"></div>
     <main class="container">
+      <nav class="site-nav">
+        <a class="nav-link active" href="index.html">Report</a>
+        <a class="nav-link" href="entries.html">Entries</a>
+      </nav>
       <header class="hero">
         <div class="hero-text">
           <div class="report-title">
@@ -45,71 +49,6 @@
           </div>
         </div>
       </header>
-
-      <section class="panel">
-        <h2>Add Entry</h2>
-        <form id="entryForm" class="form">
-          <div class="row">
-            <label>
-              Type
-              <select id="type" required>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
-              </select>
-            </label>
-            <label>
-              Date
-              <input id="date" type="date" required />
-            </label>
-            <label>
-              Category
-              <input id="category" type="text" placeholder="Food, Salary" required />
-            </label>
-          </div>
-          <div class="row">
-            <label>
-              Amount
-              <input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
-            </label>
-            <label>
-              Note
-              <input id="note" type="text" placeholder="Optional" />
-            </label>
-          </div>
-          <div class="actions">
-            <button type="submit" class="btn primary">Add Entry</button>
-            <button type="button" id="clearAll" class="btn ghost">Clear All</button>
-          </div>
-        </form>
-      </section>
-
-      <section class="panel">
-        <div class="panel-head">
-          <h2><strong>Entries</strong></h2>
-          <div class="tools">
-            <button class="btn" id="downloadCsv">Download CSV</button>
-            <label class="btn file">
-              Import CSV
-              <input id="importCsv" type="file" accept=".csv" />
-            </label>
-          </div>
-        </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Type</th>
-                <th>Category</th>
-                <th>Amount</th>
-                <th>Note</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="entries"></tbody>
-          </table>
-        </div>
-      </section>
     </main>
 
     <script src="app.js"></script>

@@ -14,7 +14,9 @@ const filterYear = document.getElementById("filterYear");
 const dateInput = document.getElementById("date");
 const now = new Date();
 const today = now.toISOString().slice(0, 10);
-dateInput.value = today;
+if (dateInput) {
+  dateInput.value = today;
+}
 
 const monthNames = [
   "January",
@@ -34,6 +36,8 @@ const monthNames = [
 const YEAR_RANGE = 5;
 
 function fillMonthOptions() {
+  if (!filterMonth) return;
+  filterMonth.innerHTML = `<option value="">All</option>`;
   monthNames.forEach((name, index) => {
     const option = document.createElement("option");
     option.value = String(index + 1).padStart(2, "0");
@@ -43,6 +47,7 @@ function fillMonthOptions() {
 }
 
 function fillYearOptions(selected) {
+  if (!filterYear) return;
   const currentYear = now.getFullYear();
   const startYear = currentYear - YEAR_RANGE;
   const years = [];
@@ -78,8 +83,8 @@ function formatAmount(value) {
 
 function render() {
   const entries = loadEntries();
-  const selectedMonth = filterMonth.value;
-  const selectedYear = filterYear.value;
+  const selectedMonth = filterMonth ? filterMonth.value : "";
+  const selectedYear = filterYear ? filterYear.value : "";
   const filtered = entries.filter((entry) => {
     const entryYear = entry.date.slice(0, 4);
     const entryMonth = entry.date.slice(5, 7);
@@ -88,34 +93,37 @@ function render() {
     return true;
   });
 
-  entriesTbody.innerHTML = "";
+  if (entriesTbody) {
+    entriesTbody.innerHTML = "";
+  }
   let income = 0;
   let expense = 0;
 
-  filtered.forEach((entry, index) => {
+  filtered.forEach((entry) => {
     if (entry.type === "income") {
       income += entry.amount;
     } else {
       expense += entry.amount;
     }
 
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${entry.date}</td>
-      <td>${entry.type}</td>
-      <td>${entry.category}</td>
-      <td>${formatAmount(entry.amount)}</td>
-      <td>${entry.note || ""}</td>
-      <td><button class="delete" data-index="${entries.indexOf(entry)}">Delete</button></td>
-    `;
-
-    entriesTbody.appendChild(row);
+    if (entriesTbody) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${entry.date}</td>
+        <td>${entry.type}</td>
+        <td>${entry.category}</td>
+        <td>${formatAmount(entry.amount)}</td>
+        <td>${entry.note || ""}</td>
+        <td><button class="delete" data-index="${entries.indexOf(entry)}">Delete</button></td>
+      `;
+      entriesTbody.appendChild(row);
+    }
   });
 
   const balance = income - expense;
-  incomeTotalEl.textContent = formatAmount(income);
-  expenseTotalEl.textContent = formatAmount(expense);
-  balanceTotalEl.textContent = formatAmount(balance);
+  if (incomeTotalEl) incomeTotalEl.textContent = formatAmount(income);
+  if (expenseTotalEl) expenseTotalEl.textContent = formatAmount(expense);
+  if (balanceTotalEl) balanceTotalEl.textContent = formatAmount(balance);
   fillYearOptions(selectedYear);
 }
 
@@ -194,54 +202,76 @@ function parseCsv(content) {
   });
 }
 
-entryForm.addEventListener("submit", (event) => {
-  event.preventDefault();
+if (entryForm) {
+  entryForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  const data = {
-    type: document.getElementById("type").value,
-    date: document.getElementById("date").value || today,
-    category: document.getElementById("category").value.trim() || "General",
-    amount: Number(document.getElementById("amount").value),
-    note: document.getElementById("note").value.trim(),
-  };
+    const data = {
+      type: document.getElementById("type").value,
+      date: document.getElementById("date").value || today,
+      category: document.getElementById("category").value.trim() || "General",
+      amount: Number(document.getElementById("amount").value),
+      note: document.getElementById("note").value.trim(),
+    };
 
-  if (!data.amount || data.amount <= 0) {
-    alert("Please enter a positive amount.");
-    return;
+    if (!data.amount || data.amount <= 0) {
+      alert("Please enter a positive amount.");
+      return;
+    }
+
+    addEntry(data);
+    entryForm.reset();
+    document.getElementById("date").value = today;
+  });
+}
+
+if (entriesTbody) {
+  entriesTbody.addEventListener("click", (event) => {
+    if (!event.target.classList.contains("delete")) return;
+    const index = Number(event.target.dataset.index);
+    deleteEntry(index);
+  });
+}
+
+if (clearAllBtn) {
+  clearAllBtn.addEventListener("click", clearAll);
+}
+
+if (downloadCsvBtn) {
+  downloadCsvBtn.addEventListener("click", downloadCsv);
+}
+
+if (filterMonth) {
+  filterMonth.addEventListener("change", render);
+}
+
+if (filterYear) {
+  filterYear.addEventListener("change", render);
+}
+
+if (importCsvInput) {
+  importCsvInput.addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const imported = parseCsv(reader.result);
+      const entries = loadEntries().concat(imported);
+      saveEntries(entries);
+      render();
+    };
+    reader.readAsText(file);
+    importCsvInput.value = "";
+  });
+}
+
+if (filterMonth || filterYear) {
+  fillMonthOptions();
+  if (filterMonth) {
+    filterMonth.value = String(now.getMonth() + 1).padStart(2, "0");
   }
+  fillYearOptions(String(now.getFullYear()));
+}
 
-  addEntry(data);
-  entryForm.reset();
-  document.getElementById("date").value = today;
-});
-
-entriesTbody.addEventListener("click", (event) => {
-  if (!event.target.classList.contains("delete")) return;
-  const index = Number(event.target.dataset.index);
-  deleteEntry(index);
-});
-
-clearAllBtn.addEventListener("click", clearAll);
-downloadCsvBtn.addEventListener("click", downloadCsv);
-filterMonth.addEventListener("change", render);
-filterYear.addEventListener("change", render);
-
-importCsvInput.addEventListener("change", (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const imported = parseCsv(reader.result);
-    const entries = loadEntries().concat(imported);
-    saveEntries(entries);
-    render();
-  };
-  reader.readAsText(file);
-  importCsvInput.value = "";
-});
-
-fillMonthOptions();
-filterMonth.value = String(now.getMonth() + 1).padStart(2, "0");
-fillYearOptions(String(now.getFullYear()));
 render();
